@@ -257,39 +257,39 @@ body{
 // ====================== DATA ======================
 const weeklyPlan = [
   { day:"周一", meals:[
-    { time:"早餐", name:"馒头", ing:"婴儿馒头或自制小馒头", method:"蒸", note:"主食碳水，易消化", tag:"" },
-    { time:"午餐", name:"鳕鱼蔬菜小米粥", ing:"鳕鱼🐟、胡萝卜、小米", method:"炖煮", note:"鳕鱼富含DHA促进大脑发育", tag:"fish" },
+    { time:"早餐", name:"馒头 + 小米南瓜米糊", ing:"婴儿馒头、小米、南瓜", method:"蒸+煮", note:"松软馒头锻炼咀嚼，南瓜米糊暖胃，干湿搭配", tag:"" },
+    { time:"午餐", name:"鳕鱼蔬菜烩饭", ing:"鳕鱼🐟、胡萝卜、洋葱、软米饭", method:"烩", note:"鳕鱼DHA促大脑发育，烩饭粒粒分明练咀嚼", tag:"fish" },
     { time:"晚餐", name:"番茄牛肉软面", ing:"牛肉🥩、番茄、婴儿面条", method:"炖煮", note:"牛肉补铁，番茄维C促进铁吸收", tag:"beef" }
   ]},
   { day:"周二", meals:[
-    { time:"早餐", name:"鸡蛋羹", ing:"鸡蛋🥚、温水", method:"蒸", note:"嫩滑易消化，优质蛋白", tag:"egg" },
-    { time:"午餐", name:"鲜虾西兰花粥", ing:"鲜虾🦐、西兰花、大米", method:"炖煮", note:"虾富含优质蛋白和锌", tag:"shrimp" },
-    { time:"晚餐", name:"蛋黄蔬菜面", ing:"鸡蛋🥚、菠菜、婴儿面条", method:"炖煮", note:"蛋黄补卵磷脂，菠菜补叶酸", tag:"egg" }
+    { time:"早餐", name:"鸡蛋羹 + 燕麦核桃米糊", ing:"鸡蛋🥚、燕麦、核桃碎", method:"蒸+煮", note:"蛋羹嫩滑，燕麦核桃米糊补脑，干湿搭配", tag:"egg" },
+    { time:"午餐", name:"鲜虾西兰花烩饭", ing:"鲜虾🦐、西兰花、软米饭", method:"烩", note:"虾富含优质蛋白和锌", tag:"shrimp" },
+    { time:"晚餐", name:"蛋黄菠菜软饼", ing:"鸡蛋🥚、菠菜、面粉", method:"烙", note:"软饼锻炼手抓咀嚼，蛋黄补卵磷脂", tag:"egg" }
   ]},
   { day:"周三", meals:[
-    { time:"早餐", name:"玉米山药米糊", ing:"玉米、山药、大米米粉", method:"搅拌", note:"山药健脾养胃，玉米香甜", tag:"" },
-    { time:"午餐", name:"牛肉土豆蔬菜粥", ing:"牛肉🥩、土豆、青菜", method:"炖煮", note:"土豆提供碳水，牛肉补铁", tag:"beef" },
-    { time:"晚餐", name:"龙利鱼豆腐羹", ing:"龙利鱼🐟、嫩豆腐", method:"蒸炖", note:"龙利鱼无刺安全，豆腐补钙", tag:"fish" }
+    { time:"早餐", name:"玉米山药软饼 + 紫薯小米糊", ing:"玉米、山药、面粉、紫薯、小米", method:"烙+煮", note:"软饼练咀嚼，紫薯花青素满满，干湿搭配", tag:"" },
+    { time:"午餐", name:"牛肉土豆烩饭", ing:"牛肉🥩、土豆、青菜、软米饭", method:"烩", note:"土豆提供碳水，牛肉补铁", tag:"beef" },
+    { time:"晚餐", name:"龙利鱼豆腐饭团", ing:"龙利鱼🐟、嫩豆腐、软米饭", method:"蒸", note:"饭团锻炼手抓，龙利鱼无刺安全", tag:"fish" }
   ]},
   { day:"周四", meals:[
-    { time:"早餐", name:"苹果山药米糊", ing:"苹果、山药、大米米粉", method:"搅拌", note:"苹果促消化，山药健脾", tag:"" },
+    { time:"早餐", name:"苹果山药蒸糕 + 红枣花生米糊", ing:"苹果、山药、鸡蛋🥚、面粉、红枣、花生", method:"蒸+煮", note:"蒸糕松软香甜，红枣花生米糊补铁，干湿搭配", tag:"egg" },
     { time:"午餐", name:"鲜虾胡萝卜软面", ing:"鲜虾🦐、胡萝卜、婴儿面条", method:"炖煮", note:"胡萝卜补维A，虾补锌", tag:"shrimp" },
-    { time:"晚餐", name:"鸡胸肉南瓜粥", ing:"鸡胸肉、南瓜、大米", method:"炖煮", note:"鸡胸肉高蛋白低脂", tag:"" }
+    { time:"晚餐", name:"鸡胸肉南瓜烩饭", ing:"鸡胸肉、南瓜、软米饭", method:"烩", note:"鸡胸肉高蛋白低脂，南瓜香甜", tag:"" }
   ]},
   { day:"周五", meals:[
-    { time:"早餐", name:"南瓜红枣米糊", ing:"南瓜、红枣、大米米粉", method:"搅拌", note:"南瓜补β-胡萝卜素，红枣补气", tag:"" },
-    { time:"午餐", name:"三文鱼菠菜粥", ing:"三文鱼🐟、菠菜、大米", method:"炖煮", note:"三文鱼富含DHA和Omega-3", tag:"fish" },
-    { time:"晚餐", name:"牛肉番茄意面", ing:"牛肉🥩、番茄、婴儿意面", method:"炖煮", note:"牛肉补铁补锌", tag:"beef" }
+    { time:"早餐", name:"南瓜红枣软饼 + 核桃黑芝麻米糊", ing:"南瓜、红枣、面粉、核桃、黑芝麻、大米", method:"烙+煮", note:"软饼香甜，黑芝麻补钙健脑，干湿搭配", tag:"" },
+    { time:"午餐", name:"三文鱼菠菜饭团", ing:"三文鱼🐟、菠菜、软米饭", method:"蒸", note:"三文鱼Omega-3，饭团锻炼抓握咬合", tag:"fish" },
+    { time:"晚餐", name:"牛肉番茄意面", ing:"牛肉🥩、番茄、婴儿意面", method:"炖煮", note:"牛肉补铁补锌，意面有嚼劲", tag:"beef" }
   ]},
   { day:"周六", meals:[
-    { time:"早餐", name:"紫薯核桃米糊", ing:"紫薯、核桃、大米米粉", method:"搅拌", note:"紫薯花青素抗氧化，核桃补脑", tag:"" },
-    { time:"午餐", name:"鲜虾冬瓜面", ing:"鲜虾🦐、冬瓜、婴儿面条", method:"炖煮", note:"冬瓜利水消暑", tag:"shrimp" },
-    { time:"晚餐", name:"鳕鱼胡萝卜粥", ing:"鳕鱼🐟、胡萝卜、大米", method:"炖煮", note:"鳕鱼DHA+胡萝卜维A", tag:"fish" }
+    { time:"早餐", name:"紫薯核桃饭团 + 山药红枣米糊", ing:"紫薯、核桃碎、软米饭、山药、红枣", method:"蒸+煮", note:"饭团锻炼手抓，山药红枣健脾暖身，干湿搭配", tag:"" },
+    { time:"午餐", name:"鲜虾冬瓜烩饭", ing:"鲜虾🦐、冬瓜、软米饭", method:"烩", note:"冬瓜利水消暑，烩饭有嚼劲", tag:"shrimp" },
+    { time:"晚餐", name:"鳕鱼胡萝卜烩饭", ing:"鳕鱼🐟、胡萝卜、软米饭", method:"烩", note:"鳕鱼DHA+胡萝卜维A", tag:"fish" }
   ]},
   { day:"周日", meals:[
-    { time:"早餐", name:"黑米黑芝麻米糊", ing:"黑米、黑芝麻、大米米粉", method:"搅拌", note:"黑米黑芝麻补铁补钙", tag:"" },
-    { time:"午餐", name:"牛肉山药蔬菜粥", ing:"牛肉🥩、山药、青菜", method:"炖煮", note:"山药健脾养胃", tag:"beef" },
-    { time:"晚餐", name:"虾仁蛋羹", ing:"鲜虾🦐、鸡蛋🥚", method:"蒸", note:"双重优质蛋白，虾补锌蛋补铁", tag:"shrimp_egg" }
+    { time:"早餐", name:"黑米黑芝麻软饼 + 南瓜小米糊", ing:"黑米粉、黑芝麻、面粉、南瓜、小米", method:"烙+煮", note:"黑芝麻补钙，南瓜护眼，干湿搭配", tag:"" },
+    { time:"午餐", name:"牛肉山药烩饭", ing:"牛肉🥩、山药、青菜、软米饭", method:"烩", note:"山药健脾，牛肉补铁", tag:"beef" },
+    { time:"晚餐", name:"虾仁蛋饼", ing:"鲜虾🦐、鸡蛋🥚、面粉", method:"烙", note:"双重蛋白，烙饼锻炼咀嚼", tag:"shrimp_egg" }
   ]}
 ];
 
