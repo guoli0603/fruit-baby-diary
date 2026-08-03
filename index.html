@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="果粒辅食日记">
+<meta name="theme-color" content="#FF8C00">
+<title>果粒辅食日记</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+html{height:100%;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  background:#FFF8F0;
+  height:100%;
+  overflow:hidden;
+}
+
+/* ================================================================
+   DESKTOP LAYOUT — 28% left + 72% right
+   ================================================================ */
+.desktop-layout{display:flex;height:100%}
+
+/* ---- Sidebar (desktop only) ---- */
+.sidebar{
+  width:28%;min-width:220px;max-width:280px;
+  background:linear-gradient(180deg,#FF8C00 0%,#FF6D00 40%,#FF9800 100%);
+  display:flex;flex-direction:column;padding:24px 0;
+  box-shadow:2px 0 16px rgba(0,0,0,0.1);
+  flex-shrink:0;
+}
+.sidebar-header{padding:0 20px 20px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.2);margin-bottom:8px}
+.sidebar-header .logo{font-size:36px;display:block;margin-bottom:2px}
+.sidebar-header h1{font-size:20px;color:#FFF;font-weight:700;letter-spacing:1px}
+.sidebar-header .subtitle{font-size:11px;color:rgba(255,255,255,0.7);margin-top:4px}
+
+.nav-menu{flex:1;padding:8px 12px;display:flex;flex-direction:column;gap:2px}
+.nav-item{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;
+  cursor:pointer;transition:all 0.25s;color:rgba(255,255,255,0.85);
+  font-size:15px;font-weight:500;border:none;background:transparent;width:100%;text-align:left;
+}
+.nav-item:hover{background:rgba(255,255,255,0.12);color:#FFF}
+.nav-item .nav-icon{font-size:22px;width:32px;text-align:center;flex-shrink:0}
+.nav-item.active{background:#43A047;color:#FFF;font-weight:600;box-shadow:0 3px 10px rgba(67,160,71,0.35)}
+
+.sidebar-footer{padding:12px 20px;font-size:11px;color:rgba(255,255,255,0.5);text-align:center;border-top:1px solid rgba(255,255,255,0.15)}
+
+/* ---- Content (desktop) ---- */
+.main-content{width:72%;flex:1;padding:28px 32px;overflow-y:auto;background:#FFF8F0}
+
+/* ================================================================
+   MOBILE LAYOUT — top header + full content + bottom tab bar
+   ================================================================ */
+.mobile-layout{display:none;flex-direction:column;height:100%}
+
+/* Top header bar */
+.mobile-header{
+  background:linear-gradient(135deg,#FF8C00,#FF6D00);
+  color:#FFF;padding:12px 16px;display:flex;align-items:center;gap:10px;
+  flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  padding-top:max(12px, env(safe-area-inset-top))
+}
+.mobile-header .m-logo{font-size:28px;line-height:1}
+.mobile-header .m-title{font-size:17px;font-weight:700;flex:1}
+.mobile-header .m-subtitle{font-size:11px;opacity:0.75;margin-top:1px}
+
+/* Main scroll area */
+.mobile-main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px}
+
+/* Bottom tab bar */
+.bottom-tabs{
+  display:flex;background:#FFF;border-top:1px solid #EEE;
+  padding-bottom:max(4px, env(safe-area-inset-bottom));
+  flex-shrink:0;box-shadow:0 -2px 8px rgba(0,0,0,0.04);
+}
+.tab-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:8px 4px 6px;border:none;background:transparent;cursor:pointer;
+  color:#999;font-size:10px;font-weight:500;transition:all 0.2s;
+  -webkit-tap-highlight-color:transparent;min-height:56px;
+}
+.tab-btn .tab-icon{font-size:22px;margin-bottom:2px;line-height:1}
+.tab-btn.active{color:#FF8C00}
+.tab-btn.active .tab-icon{transform:scale(1.1)}
+
+/* ================================================================
+   SHARED STYLES
+   ================================================================ */
+.card{
+  background:#FFF;border-radius:20px;padding:24px;margin-bottom:16px;
+  box-shadow:0 2px 14px rgba(0,0,0,0.04);
+}
+.section-title{font-size:20px;font-weight:700;color:#333;margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.section-title .icon{font-size:24px}
+
+/* ---- Buttons ---- */
+.btn{
+  padding:10px 20px;border-radius:24px;border:none;cursor:pointer;
+  font-size:14px;font-weight:600;transition:all 0.2s;
+  display:inline-flex;align-items:center;gap:6px;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn:active{transform:scale(0.96)}
+.btn-orange{background:#FF8C00;color:#FFF}
+.btn-orange:active{background:#F57C00}
+.btn-outline{background:#FFF;color:#FF8C00;border:2px solid #FF8C00}
+.btn-outline:active{background:#FFF3E0}
+.btn-green{background:#43A047;color:#FFF}
+.btn-green:active{background:#388E3C}
+
+/* ---- Meal Cards ---- */
+.meal-cards{display:grid;grid-template-columns:repeat(3, 1fr);gap:16px}
+.meal-card{
+  background:#FAFAFA;border-radius:16px;padding:20px;
+  border:2px solid #F0F0F0;transition:all 0.25s;
+  position:relative;overflow:hidden;
+}
+.meal-card.breakfast{border-left:5px solid #FFB74D}
+.meal-card.lunch{border-left:5px solid #66BB6A}
+.meal-card.dinner{border-left:5px solid #42A5F5}
+.meal-time{font-size:12px;font-weight:700;margin-bottom:8px}
+.meal-time.breakfast-tag{color:#F57C00}
+.meal-time.lunch-tag{color:#2E7D32}
+.meal-time.dinner-tag{color:#1565C0}
+.meal-name{font-size:17px;font-weight:700;color:#333;margin-bottom:10px;line-height:1.3}
+.meal-ingredients{font-size:13px;color:#666;margin-bottom:8px;line-height:1.5}
+.meal-method{display:inline-block;font-size:11px;color:#999;background:#F5F5F5;padding:3px 10px;border-radius:10px}
+.tag-highlight{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;margin-right:4px}
+.tag-fish{background:#B3E5FC;color:#0277BD}
+.tag-shrimp{background:#FFCDD2;color:#C62828}
+.tag-egg{background:#FFF9C4;color:#F57F17}
+.tag-beef{background:#FFCCBC;color:#BF360C}
+
+/* ---- Random Banner ---- */
+.random-banner{
+  background:linear-gradient(135deg,#FFF3E0,#FFE0B2);
+  border-radius:16px;padding:18px 20px;margin-bottom:18px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+.random-banner .banner-text{font-size:15px;font-weight:600;color:#E65100}
+.random-banner .banner-sub{font-size:12px;color:#BF360C;margin-top:2px}
+
+/* ---- Week Table ---- */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -4px}
+.week-table{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
+.week-table th{background:#FF8C00;color:#FFF;padding:10px 8px;font-weight:600;font-size:12px;white-space:nowrap}
+.week-table th:first-child{border-radius:10px 0 0 0}
+.week-table th:last-child{border-radius:0 10px 0 0}
+.week-table td{padding:8px;border-bottom:1px solid #F0F0F0;vertical-align:top;line-height:1.4;font-size:12px}
+.week-table .day-cell{font-weight:700;color:#FF8C00;background:#FFF3E0;text-align:center;font-size:12px}
+
+/* ---- Tracking ---- */
+.track-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.track-stat{background:#FAFAFA;border-radius:14px;padding:16px 8px;text-align:center;border:2px solid #F0F0F0}
+.track-stat .stat-icon{font-size:26px}
+.track-stat .stat-count{font-size:26px;font-weight:800;color:#FF8C00;margin:2px 0}
+.track-stat .stat-label{font-size:12px;color:#666}
+.track-stat .stat-status{font-size:10px;margin-top:2px;color:#43A047;font-weight:600}
+
+.track-table{width:100%;border-collapse:collapse;text-align:center;min-width:560px}
+.track-table th{background:#FF8C00;color:#FFF;padding:10px 6px;font-size:12px}
+.track-table td{padding:12px 6px;border-bottom:1px solid #F0F0F0;font-size:13px}
+.track-table .check{color:#43A047;font-weight:700;font-size:15px}
+.track-table .dash{color:#BDBDBD}
+.track-table .cat-cell{text-align:left;font-weight:600;padding-left:12px}
+.track-table .count-cell{font-weight:700;color:#FF8C00;font-size:15px}
+.track-table .status-pass{color:#43A047;font-weight:600}
+.track-table .status-fail{color:#F44336;font-weight:600}
+
+/* ---- Shopping ---- */
+.shop-category{margin-bottom:20px}
+.shop-cat-title{font-size:15px;font-weight:700;color:#333;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #FFE0B2;display:flex;align-items:center;gap:8px}
+.shop-cat-title .cat-icon{font-size:18px}
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.shop-item{
+  background:#FFF;border:1px solid #F0F0F0;border-radius:12px;
+  padding:12px 14px;display:flex;justify-content:space-between;align-items:center;
+}
+.shop-item .item-name{font-size:13px;font-weight:500;color:#333}
+.shop-item .item-qty{font-size:12px;color:#999}
+
+/* Tips grid */
+.tips-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+
+/* Content panels */
+.content-panel{display:none}
+.content-panel.active{display:block;animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ================================================================
+   RESPONSIVE — Mobile vs Desktop
+   ================================================================ */
+@media (max-width:768px){
+  .desktop-layout{display:none}
+  .mobile-layout{display:flex}
+}
+@media (min-width:769px){
+  .desktop-layout{display:flex}
+  .mobile-layout{display:none}
+}
+
+/* Mobile-specific overrides */
+@media (max-width:768px){
+  .meal-cards{grid-template-columns:1fr;gap:12px}
+  .meal-card{padding:16px;border-radius:14px}
+  .meal-name{font-size:16px}
+  .card{padding:18px;border-radius:16px;margin-bottom:12px}
+  .section-title{font-size:18px;margin-bottom:14px}
+  .section-title .icon{font-size:22px}
+  .track-summary{grid-template-columns:repeat(2,1fr);gap:8px}
+  .track-stat{padding:12px 6px;border-radius:12px}
+  .track-stat .stat-icon{font-size:22px}
+  .track-stat .stat-count{font-size:22px}
+  .random-banner{padding:14px 16px;border-radius:14px}
+  .random-banner .banner-text{font-size:14px}
+  .random-banner .banner-sub{font-size:11px}
+  .btn{padding:10px 16px;font-size:13px}
+  .shop-grid{grid-template-columns:1fr}
+  .tips-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== DESKTOP LAYOUT ==================== -->
+<div class="desktop-layout" id="desktop-layout">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <span class="logo">🍊</span>
+      <h1>果粒辅食日记</h1>
+      <p class="subtitle">宝宝每日辅食工作台</p>
+    </div>
+    <nav class="nav-menu" id="desktop-nav"></nav>
+    <div class="sidebar-footer">果粒辅食日记 v2.0 · 科学喂养</div>
+  </aside>
+  <main class="main-content" id="desktop-content"></main>
+</div>
+
+<!-- ==================== MOBILE LAYOUT ==================== -->
+<div class="mobile-layout" id="mobile-layout">
+  <header class="mobile-header">
+    <span class="m-logo">🍊</span>
+    <div>
+      <div class="m-title">果粒辅食日记</div>
+      <div class="m-subtitle">宝宝每日辅食工作台</div>
+    </div>
+  </header>
+  <main class="mobile-main" id="mobile-content"></main>
+  <nav class="bottom-tabs" id="mobile-tabs"></nav>
+</div>
+
+<script>
+// ====================== DATA ======================
+const weeklyPlan = [
+  { day:"周一", meals:[
+    { time:"早餐", name:"馒头", ing:"婴儿馒头或自制小馒头", method:"蒸", note:"主食碳水，易消化", tag:"" },
+    { time:"午餐", name:"鳕鱼蔬菜小米粥", ing:"鳕鱼🐟、胡萝卜、小米", method:"炖煮", note:"鳕鱼富含DHA促进大脑发育", tag:"fish" },
+    { time:"晚餐", name:"番茄牛肉软面", ing:"牛肉🥩、番茄、婴儿面条", method:"炖煮", note:"牛肉补铁，番茄维C促进铁吸收", tag:"beef" }
+  ]},
+  { day:"周二", meals:[
+    { time:"早餐", name:"鸡蛋羹", ing:"鸡蛋🥚、温水", method:"蒸", note:"嫩滑易消化，优质蛋白", tag:"egg" },
+    { time:"午餐", name:"鲜虾西兰花粥", ing:"鲜虾🦐、西兰花、大米", method:"炖煮", note:"虾富含优质蛋白和锌", tag:"shrimp" },
+    { time:"晚餐", name:"蛋黄蔬菜面", ing:"鸡蛋🥚、菠菜、婴儿面条", method:"炖煮", note:"蛋黄补卵磷脂，菠菜补叶酸", tag:"egg" }
+  ]},
+  { day:"周三", meals:[
+    { time:"早餐", name:"玉米山药米糊", ing:"玉米、山药、大米米粉", method:"搅拌", note:"山药健脾养胃，玉米香甜", tag:"" },
+    { time:"午餐", name:"牛肉土豆蔬菜粥", ing:"牛肉🥩、土豆、青菜", method:"炖煮", note:"土豆提供碳水，牛肉补铁", tag:"beef" },
+    { time:"晚餐", name:"龙利鱼豆腐羹", ing:"龙利鱼🐟、嫩豆腐", method:"蒸炖", note:"龙利鱼无刺安全，豆腐补钙", tag:"fish" }
+  ]},
+  { day:"周四", meals:[
+    { time:"早餐", name:"苹果山药米糊", ing:"苹果、山药、大米米粉", method:"搅拌", note:"苹果促消化，山药健脾", tag:"" },
+    { time:"午餐", name:"鲜虾胡萝卜软面", ing:"鲜虾🦐、胡萝卜、婴儿面条", method:"炖煮", note:"胡萝卜补维A，虾补锌", tag:"shrimp" },
+    { time:"晚餐", name:"鸡胸肉南瓜粥", ing:"鸡胸肉、南瓜、大米", method:"炖煮", note:"鸡胸肉高蛋白低脂", tag:"" }
+  ]},
+  { day:"周五", meals:[
+    { time:"早餐", name:"南瓜红枣米糊", ing:"南瓜、红枣、大米米粉", method:"搅拌", note:"南瓜补β-胡萝卜素，红枣补气", tag:"" },
+    { time:"午餐", name:"三文鱼菠菜粥", ing:"三文鱼🐟、菠菜、大米", method:"炖煮", note:"三文鱼富含DHA和Omega-3", tag:"fish" },
+    { time:"晚餐", name:"牛肉番茄意面", ing:"牛肉🥩、番茄、婴儿意面", method:"炖煮", note:"牛肉补铁补锌", tag:"beef" }
+  ]},
+  { day:"周六", meals:[
+    { time:"早餐", name:"紫薯核桃米糊", ing:"紫薯、核桃、大米米粉", method:"搅拌", note:"紫薯花青素抗氧化，核桃补脑", tag:"" },
+    { time:"午餐", name:"鲜虾冬瓜面", ing:"鲜虾🦐、冬瓜、婴儿面条", method:"炖煮", note:"冬瓜利水消暑", tag:"shrimp" },
+    { time:"晚餐", name:"鳕鱼胡萝卜粥", ing:"鳕鱼🐟、胡萝卜、大米", method:"炖煮", note:"鳕鱼DHA+胡萝卜维A", tag:"fish" }
+  ]},
+  { day:"周日", meals:[
+    { time:"早餐", name:"黑米黑芝麻米糊", ing:"黑米、黑芝麻、大米米粉", method:"搅拌", note:"黑米黑芝麻补铁补钙", tag:"" },
+    { time:"午餐", name:"牛肉山药蔬菜粥", ing:"牛肉🥩、山药、青菜", method:"炖煮", note:"山药健脾养胃", tag:"beef" },
+    { time:"晚餐", name:"虾仁蛋羹", ing:"鲜虾🦐、鸡蛋🥚", method:"蒸", note:"双重优质蛋白，虾补锌蛋补铁", tag:"shrimp_egg" }
+  ]}
+];
+
+const NAV_ITEMS = [
+  { id:'daily',   icon:'🍽️', label:'每日辅食' },
+  { id:'weekly',  icon:'📅', label:'周计划' },
+  { id:'tracking',icon:'📊', label:'营养追踪' },
+  { id:'ingredients',icon:'📦', label:'食材库' },
+  { id:'shopping',icon:'🛒', label:'采购清单' }
+];
+
+let currentPanel = 'daily';
+
+// ====================== NAVIGATION BUILDER ======================
+function buildDesktopNav() {
+  const nav = document.getElementById('desktop-nav');
+  nav.innerHTML = NAV_ITEMS.map(item => `
+    <button class="nav-item${item.id===currentPanel?' active':''}" data-panel="${item.id}">
+      <span class="nav-icon">${item.icon}</span> ${item.label}
+    </button>
+  `).join('');
+
+  nav.querySelectorAll('.nav-item').forEach(btn => {
+    btn.addEventListener('click', () => switchPanel(btn.dataset.panel));
+  });
+}
+
+function buildMobileTabs() {
+  const tabs = document.getElementById('mobile-tabs');
+  tabs.innerHTML = NAV_ITEMS.map(item => `
+    <button class="tab-btn${item.id===currentPanel?' active':''}" data-panel="${item.id}">
+      <span class="tab-icon">${item.icon}</span>
+      ${item.label}
+    </button>
+  `).join('');
+
+  tabs.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchPanel(btn.dataset.panel));
+  });
+}
+
+function switchPanel(panelId) {
+  currentPanel = panelId;
+
+  // Update desktop nav
+  document.querySelectorAll('#desktop-nav .nav-item').forEach(b => {
+    b.classList.toggle('active', b.dataset.panel === panelId);
+  });
+
+  // Update mobile tabs
+  document.querySelectorAll('#mobile-tabs .tab-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.panel === panelId);
+  });
+
+  // Render content in both desktop and mobile
+  renderContent('desktop-content', panelId);
+  renderContent('mobile-content', panelId);
+
+  // Scroll mobile to top
+  document.getElementById('mobile-content').scrollTop = 0;
+}
+
+// ====================== CONTENT RENDERER ======================
+function renderContent(containerId, panelId) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+
+  let html = '';
+  switch(panelId) {
+    case 'daily':      html = renderDaily(); break;
+    case 'weekly':     html = renderWeeklyPanel(); break;
+    case 'tracking':   html = renderTrackingPanel(); break;
+    case 'ingredients':html = renderIngredientsPanel(); break;
+    case 'shopping':   html = renderShoppingPanel(); break;
+  }
+  c.innerHTML = html;
+
+  // Attach shuffle button listeners
+  if (panelId === 'daily') {
+    c.querySelectorAll('.btn-shuffle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Refresh both panels
+        renderContent('desktop-content', 'daily');
+        renderContent('mobile-content', 'daily');
+        const mc = document.getElementById('mobile-content');
+        if (mc) mc.scrollTop = 0;
+      });
+    });
+  }
+}
+
+// ---- DAILY MEALS ----
+function getRandomPair() {
+  const allMeals = [];
+  weeklyPlan.forEach(d => d.meals.forEach(m => allMeals.push({...m, day:d.day})));
+
+  const breakfasts = allMeals.filter(m => m.time==='早餐');
+  const nonBreakfasts = allMeals.filter(m => m.time!=='早餐');
+
+  let selected = [];
+  selected.push(breakfasts[Math.floor(Math.random()*breakfasts.length)]);
+
+  const tagsNeeded = ['fish','shrimp','egg','beef'];
+  let remain = [...nonBreakfasts].sort(()=>Math.random()-0.5);
+
+  for (const tag of tagsNeeded) {
+    if (selected.length>=3) break;
+    const idx = remain.findIndex(m => m.tag.includes(tag));
+    if (idx>=0) selected.push(remain.splice(idx,1)[0]);
+  }
+  while (selected.length<3 && remain.length>0) selected.push(remain.shift());
+  while (selected.length<3) {
+    const r = Math.floor(Math.random()*nonBreakfasts.length);
+    if (!selected.find(s=>s.name===nonBreakfasts[r].name)) selected.push(nonBreakfasts[r]);
+  }
+  selected.sort(()=>Math.random()-0.5);
+  return selected.slice(0,3);
+}
+
+function renderDaily() {
+  const meals = getRandomPair();
+  const timeMap = {'早餐':'breakfast','午餐':'lunch','晚餐':'dinner'};
+  const tagMap = {'fish':'tag-fish','shrimp':'tag-shrimp','egg':'tag-egg','beef':'tag-beef','shrimp_egg':'tag-shrimp'};
+  const tagLabel = {'fish':'🐟鱼','shrimp':'🦐虾','egg':'🥚蛋','beef':'🥩牛肉','shrimp_egg':'🦐虾🥚蛋'};
+
+  const cardsHtml = meals.map(m => {
+    const cls = timeMap[m.time]||'';
+    const tCls = m.tag ? tagMap[m.tag]||'' : '';
+    const tLbl = m.tag ? tagLabel[m.tag]||'' : '';
+    return `<div class="meal-card ${cls}">
+      <div class="meal-time ${cls}-tag">${m.time}</div>
+      <div class="meal-name">${m.name}</div>
+      <div class="meal-ingredients">${m.ing}</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span class="meal-method">🔥 ${m.method}</span>
+        ${tLbl?`<span class="tag-highlight ${tCls}">${tLbl}</span>`:''}
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:#999;">💡 ${m.note}</div>
+    </div>`;
+  }).join('');
+
+  return `<div class="card">
+    <div class="section-title"><span class="icon">🍽️</span> 今日辅食</div>
+    <div class="random-banner">
+      <div>
+        <div class="banner-text">✨ 每日三顿，营养不重样</div>
+        <div class="banner-sub">从七日食谱中智能搭配，确保鱼🐟虾🦐蛋🥚肉🥩均衡摄入</div>
+      </div>
+      <button class="btn btn-orange btn-shuffle">🔄 换一批</button>
+    </div>
+    <div class="meal-cards">${cardsHtml}</div>
+  </div>
+  <div class="card">
+    <div class="section-title"><span class="icon">💡</span> 喂养小贴士</div>
+    <div class="tips-grid">
+      <div style="background:#E8F5E9;padding:14px 16px;border-radius:12px;font-size:13px;color:#2E7D32;line-height:1.6;"><strong>🐟 鱼类</strong><br>富含DHA促大脑发育，选无刺鱼种</div>
+      <div style="background:#FFEBEE;padding:14px 16px;border-radius:12px;font-size:13px;color:#C62828;line-height:1.6;"><strong>🦐 虾类</strong><br>优质蛋白补锌，去壳去虾线</div>
+      <div style="background:#FFFDE7;padding:14px 16px;border-radius:12px;font-size:13px;color:#F57F17;line-height:1.6;"><strong>🥚 蛋类</strong><br>蛋黄补铁补脑，蛋清要逐步添加</div>
+      <div style="background:#FBE9E7;padding:14px 16px;border-radius:12px;font-size:13px;color:#BF360C;line-height:1.6;"><strong>🥩 牛肉</strong><br>补铁防贫血，配番茄维C促吸收</div>
+    </div>
+  </div>`;
+}
+
+// ---- WEEKLY PLAN ----
+function renderWeeklyPanel() {
+  let html = `<div class="card">
+    <div class="section-title"><span class="icon">📅</span> 七日辅食计划</div>
+    <div class="table-wrap">
+      <table class="week-table"><thead><tr>
+        <th>日期</th><th>餐次</th><th>菜名</th><th>主要食材</th><th>方式</th><th>营养备注</th>
+      </tr></thead><tbody>`;
+
+  weeklyPlan.forEach(d => {
+    d.meals.forEach((m,mi) => {
+      html += `<tr>
+        <td class="day-cell">${mi===0?d.day:''}</td>
+        <td style="text-align:center;font-weight:600;">${m.time}</td>
+        <td style="font-weight:600;">${m.name}</td>
+        <td>${m.ing}</td>
+        <td style="text-align:center;">${m.method}</td>
+        <td style="color:#777;">${m.note}</td>
+      </tr>`;
+    });
+  });
+
+  html += '</tbody></table></div></div>';
+  return html;
+}
+
+// ---- TRACKING ----
+function renderTrackingPanel() {
+  const tags = [
+    { name:'鱼', icon:'🐟', cls:'fish' },
+    { name:'虾', icon:'🦐', cls:'shrimp' },
+    { name:'鸡蛋', icon:'🥚', cls:'egg' },
+    { name:'牛肉', icon:'🥩', cls:'beef' }
+  ];
+
+  const tracking = tags.map(t => {
+    const row = weeklyPlan.map(d => d.meals.some(m => m.tag.includes(t.cls)));
+    const count = row.filter(Boolean).length;
+    return {...t, row, count, pass:count>=2};
+  });
+
+  const days = ['周一','周二','周三','周四','周五','周六','周日'];
+
+  const statsHtml = tracking.map(t => `
+    <div class="track-stat">
+      <div class="stat-icon">${t.icon}</div>
+      <div class="stat-count">${t.count}<span style="font-size:13px;font-weight:400;">/7天</span></div>
+      <div class="stat-label">${t.name}</div>
+      <div class="stat-status">${t.pass?'✅ 达标':'⚠️ 不足'}</div>
+    </div>
+  `).join('');
+
+  let tableHtml = `<table class="track-table"><thead><tr>
+    <th>食材</th><th></th>${days.map(d=>`<th>${d}</th>`).join('')}
+    <th>次数</th><th>状态</th>
+  </tr></thead><tbody>`;
+
+  tracking.forEach(t => {
+    tableHtml += `<tr>
+      <td class="cat-cell">${t.name}</td><td>${t.icon}</td>
+      ${t.row.map(h=>`<td class="${h?'check':'dash'}">${h?'✓':'—'}</td>`).join('')}
+      <td class="count-cell">${t.count}次</td>
+      <td class="${t.pass?'status-pass':'status-fail'}">${t.pass?'✅ 达标':'⚠️ 不足'}</td>
+    </tr>`;
+  });
+
+  tableHtml += `<tr style="background:#FFF3E0;font-weight:600;">
+    <td colspan="2">每日覆盖</td>
+    ${days.map((_,di)=>{
+      const cnt = tracking.filter(t=>t.row[di]).length;
+      return `<td style="color:#FF8C00;font-size:15px;">${cnt}</td>`;
+    }).join('')}
+    <td style="color:#FF8C00;font-size:15px;">${tracking.reduce((s,t)=>s+t.count,0)}</td>
+    <td>—</td>
+  </tr></tbody></table>`;
+
+  return `<div class="card">
+    <div class="section-title"><span class="icon">📊</span> 每周关键食材覆盖</div>
+    <div class="track-summary">${statsHtml}</div>
+    <div class="table-wrap">${tableHtml}</div>
+    <p style="margin-top:14px;font-size:12px;color:#999;">💡 每种关键食材每周建议至少食用2次以上</p>
+  </div>`;
+}
+
+// ---- INGREDIENTS ----
+function renderIngredientsPanel() {
+  const cats = [
+    { icon:'🐟', name:'鱼类', items:[
+      ['鳕鱼','约200g（2餐）'],['龙利鱼','约100g（1餐）'],['三文鱼','约100g（1餐）']
+    ]},
+    { icon:'🦐', name:'虾类', items:[['鲜虾','约150g（4餐）']] },
+    { icon:'🥚', name:'蛋类', items:[['鸡蛋','5-6个']] },
+    { icon:'🥩', name:'肉类', items:[['牛肉','约200g（4餐）'],['鸡胸肉','约50g（1餐）']] },
+    { icon:'🥕', name:'蔬菜', items:[
+      ['南瓜','约300g'],['胡萝卜','约200g'],['西兰花','约100g'],['菠菜','约100g'],
+      ['番茄','2-3个'],['土豆','1-2个'],['冬瓜','约100g'],['青菜','适量'],
+      ['山药','约200g'],['玉米','1根'],['紫薯','约100g']
+    ]},
+    { icon:'🍎', name:'水果', items:[
+      ['苹果','2个'],['香蕉','1根'],['牛油果','1个'],['蓝莓','一小盒'],['红枣','适量']
+    ]},
+    { icon:'🌾', name:'主食', items:[
+      ['大米米粉','1盒'],['小米','一小袋'],['燕麦片','一小袋'],['婴儿面条','1包'],
+      ['婴儿意面','可选'],['婴儿馒头','若干'],['黑米','一小袋'],['黑芝麻','适量'],['核桃','适量']
+    ]},
+    { icon:'🧈', name:'其他', items:[['嫩豆腐','1盒'],['温水','适量']] }
+  ];
+
+  let html = '<div class="card"><div class="section-title"><span class="icon">📦</span> 全套食材库</div>';
+  cats.forEach(cat => {
+    html += `<div class="shop-category">
+      <div class="shop-cat-title"><span class="cat-icon">${cat.icon}</span> ${cat.name}</div>
+      <div class="shop-grid">
+        ${cat.items.map(it=>`<div class="shop-item"><span class="item-name">${it[0]}</span><span class="item-qty">${it[1]}</span></div>`).join('')}
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+// ---- SHOPPING ----
+function renderShoppingPanel() {
+  const cats = [
+    { icon:'🐟', name:'鱼类', items:[
+      ['鳕鱼','约200g（2餐）','选去骨净肉，冷冻保存'],
+      ['龙利鱼','约100g（1餐）','无刺适合宝宝'],
+      ['三文鱼','约100g（1餐）','富含DHA']
+    ]},
+    { icon:'🦐', name:'虾类', items:[['鲜虾','约150g（4餐）','去壳去虾线']] },
+    { icon:'🥚', name:'蛋类', items:[['鸡蛋','5-6个','新鲜有机为佳']] },
+    { icon:'🥩', name:'肉类', items:[
+      ['牛肉','约200g（4餐）','选嫩肉部位，搅碎或切末'],
+      ['鸡胸肉','约50g（1餐）','高蛋白低脂']
+    ]},
+    { icon:'🥕', name:'蔬菜', items:[
+      ['南瓜','约300g','蒸熟压泥'],['胡萝卜','约200g','擦丝或切末'],
+      ['西兰花','约100g','焯水切碎'],['菠菜','约100g','焯水去草酸'],
+      ['番茄','2-3个','去皮去籽'],['土豆','1-2个','蒸熟压泥'],
+      ['冬瓜','约100g','切小块'],['青菜','适量','切碎'],
+      ['山药','约200g','去皮蒸熟'],['玉米','1根','剥粒'],
+      ['紫薯','约100g','蒸熟压泥']
+    ]},
+    { icon:'🍎', name:'水果', items:[
+      ['苹果','2个','蒸软或刮泥'],['香蕉','1根','选熟透的'],
+      ['牛油果','1个','选成熟的'],['蓝莓','一小盒','洗净'],
+      ['红枣','适量','去核']
+    ]},
+    { icon:'🌾', name:'主食', items:[
+      ['大米米粉','1盒','强化铁米粉'],['小米','一小袋','养胃易消化'],
+      ['燕麦片','一小袋','纯燕麦无添加'],['婴儿面条','1包','无盐细面'],
+      ['婴儿意面','1包','可选'],['婴儿馒头','若干','自制或无添加'],
+      ['黑米','一小袋',''],['黑芝麻','适量',''],['核桃','适量','']
+    ]},
+    { icon:'🧈', name:'其他', items:[['嫩豆腐','1盒','选嫩豆腐']] }
+  ];
+
+  let html = '<div class="card"><div class="section-title"><span class="icon">🛒</span> 每周采购清单</div>';
+  cats.forEach(cat => {
+    html += `<div class="shop-category">
+      <div class="shop-cat-title"><span class="cat-icon">${cat.icon}</span> ${cat.name}</div>
+      <div class="shop-grid">
+        ${cat.items.map(it=>`<div class="shop-item">
+          <div><div class="item-name">${it[0]}</div><div style="font-size:10px;color:#aaa;">${it[2]}</div></div>
+          <span class="item-qty">${it[1]}</span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+// ====================== INIT ======================
+buildDesktopNav();
+buildMobileTabs();
+renderContent('desktop-content', 'daily');
+renderContent('mobile-content', 'daily');
+</script>
+</body>
+</html>
