@@ -222,6 +222,31 @@ body{
   .shop-grid{grid-template-columns:1fr}
   .tips-grid{grid-template-columns:1fr}
 }
+
+/* ========== Tutorial Modal ========== */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center;animation:fadeIn .2s ease}
+.modal-overlay.show{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-box{background:#FFF;border-radius:20px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto;padding:28px 24px 20px;position:relative;animation:slideUp .3s ease;box-shadow:0 20px 60px rgba(0,0,0,0.15)}
+.modal-close{position:absolute;top:12px;right:16px;width:32px;height:32px;border-radius:50%;background:#F5F5F5;border:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#999;transition:all .2s}
+.modal-close:hover{background:#FF5252;color:#FFF}
+.modal-meal-name{font-size:20px;font-weight:700;color:#333;margin-bottom:6px;padding-right:30px}
+.modal-meal-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.modal-ingredient{font-size:13px;color:#888;margin-bottom:16px}
+.modal-ingredient strong{color:#555}
+.tutorial-step{border-radius:14px;padding:16px 18px;margin-bottom:12px;border-left:4px solid #FF9800}
+.tutorial-step:nth-child(1){background:#FFFAF5;border-left-color:#FF9800}
+.tutorial-step:nth-child(2){background:#F1F8E9;border-left-color:#66BB6A}
+.tutorial-step:nth-child(3){background:#FFF3E0;border-left-color:#FF5722}
+.step-label{font-size:12px;font-weight:700;letter-spacing:.5px;margin-bottom:6px}
+.step-label.s1{color:#F57C00}
+.step-label.s2{color:#2E7D32}
+.step-label.s3{color:#E64A19}
+.step-content{font-size:14px;color:#555;line-height:1.7}
+.tips-box{background:#E8F5E9;border-radius:12px;padding:14px 16px;margin-top:18px;font-size:13px;color:#2E7D32;line-height:1.8}
+.tips-box strong{color:#1B5E20}
+@media(max-width:500px){.modal-box{width:94%;padding:22px 16px 16px;border-radius:16px}.modal-meal-name{font-size:18px}}
 </style>
 </head>
 <body>
@@ -251,6 +276,18 @@ body{
   </header>
   <main class="mobile-main" id="mobile-content"></main>
   <nav class="bottom-tabs" id="mobile-tabs"></nav>
+</div>
+
+<!-- ====================== TUTORIAL MODAL ====================== -->
+<div class="modal-overlay" id="tutorial-modal" onclick="closeTutorial(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeTutorial()">✕</button>
+    <div class="modal-meal-name" id="modal-title"></div>
+    <div class="modal-meal-tags" id="modal-tags"></div>
+    <div class="modal-ingredient" id="modal-serving"></div>
+    <div id="tutorial-steps"></div>
+    <div class="tips-box" id="tips-content"></div>
+  </div>
 </div>
 
 <script>
@@ -419,7 +456,7 @@ function renderDaily() {
     const cls = timeMap[m.time]||'';
     const tCls = m.tag ? tagMap[m.tag]||'' : '';
     const tLbl = m.tag ? tagLabel[m.tag]||'' : '';
-    return `<div class="meal-card ${cls}">
+    return `<div class="meal-card ${cls}" onclick="openTutorial('${m.name.replace(/'/g, "\\'")}')" style="cursor:pointer;">
       <div class="meal-time ${cls}-tag">${m.time}</div>
       <div class="meal-name">${m.name}</div>
       <div class="meal-ingredients">${m.ing}</div>
@@ -464,7 +501,7 @@ function renderWeeklyPanel() {
 
   weeklyPlan.forEach(d => {
     d.meals.forEach((m,mi) => {
-      html += `<tr>
+      html += `<tr onclick="openTutorial('${m.name.replace(/'/g, "\\'")}')" style="cursor:pointer;" title="点击查看做法教程">
         <td class="day-cell">${mi===0?d.day:''}</td>
         <td style="text-align:center;font-weight:600;">${m.time}</td>
         <td style="font-weight:600;">${m.name}</td>
@@ -625,6 +662,49 @@ function renderShoppingPanel() {
   html += '</div>';
   return html;
 }
+
+
+// ====================== 3-STEP TUTORIAL DATA ======================
+const tutorials = {
+  "馒头 + 小米南瓜米糊":{serving:"婴儿馒头1个（约30g）· 小米20g · 南瓜30g",steps:["南瓜去皮切小块，小米淘洗干净","小米加300ml水煮15分钟至软烂，加入南瓜再煮10分钟，辅食机打成细腻糊状","馒头切手指条状，放入蒸锅蒸3分钟热透即可"],tips:"馒头切手指条方便宝宝抓握；米糊稠度如酸奶即可；馒头密封冷冻保存1周，米糊当天现做现吃"},
+  "鸡蛋羹 + 燕麦核桃米糊":{serving:"鸡蛋🥚1个 · 温水60ml · 燕麦15g · 核桃仁5g",steps:["鸡蛋打散加温水搅匀，过筛去泡沫（表面才光滑）","盖上保鲜膜扎几个小孔，水开上锅中火蒸8分钟","燕麦加水煮5分钟，核桃研磨成细粉加入搅匀即可"],tips:"蛋羹蒸制不超过10分钟避免老硬起孔；核桃必须研磨成细粉防呛；蛋羹冷藏1天，吃前回蒸3分钟"},
+  "玉米山药软饼 + 紫薯小米糊":{serving:"玉米半根 · 山药50g · 面粉30g · 紫薯30g · 小米15g",steps:["玉米剥粒蒸熟打泥，山药蒸熟压成泥，加面粉揉成软面团","平底锅刷薄油，取小团压成约5mm厚圆饼，小火两面各烙2分钟","紫薯去皮切块+小米+水煮15分钟，辅食机打成细腻米糊"],tips:"软饼厚5mm最合适，太厚中间不熟；山药选铁棍山药更粉糯；软饼冷藏3天冷冻2周"},
+  "鳕鱼蔬菜烩饭":{serving:"鳕鱼🐟30g · 胡萝卜20g · 洋葱10g · 软米饭80g",steps:["鳕鱼化冻后反复检查去刺，切成小丁；胡萝卜、洋葱切碎","锅中刷薄油，先炒洋葱出香，加胡萝卜翻炒，加少量水焖3分钟","加入鳕鱼丁和米饭翻拌均匀，小火烩2分钟至汤汁收干"],tips:"米饭粒粒分明不糊烂保留咀嚼感；鳕鱼一定反复检查去刺；现做现吃最佳，不隔夜"},
+  "番茄牛肉软面":{serving:"牛肉🥩30g · 番茄半个 · 婴儿面条30g",steps:["牛肉先刀背拍松再剁成细腻肉末；番茄去皮切碎","锅中刷油，牛肉末炒至变色，加番茄炒出汁，加半碗水煮开","放入面条煮3-4分钟至筷子能夹断，收汁即可"],tips:"牛肉末越细越好方便吞咽；面条煮到筷子轻松夹断但不断条；可多做一份冷藏次日加热食用"},
+  "鲜虾西兰花烩饭":{serving:"鲜虾🦐3只 · 西兰花30g · 软米饭80g",steps:["鲜虾去壳去虾线，剁成保留颗粒感的虾泥；西兰花焯水切碎","锅中刷油，虾泥快速翻炒至变色（约30秒）","加入米饭和西兰花碎，加少量水，小火翻拌烩2分钟"],tips:"虾泥保留米粒大小颗粒锻炼咀嚼；虾线务必去净；冷藏不超过24小时，吃前充分加热"},
+  "蛋黄菠菜软饼":{serving:"鸡蛋🥚蛋黄1个 · 菠菜20g · 面粉40g · 水适量",steps:["菠菜焯水30秒挤干水分切碎；蛋黄打散备用","面粉+蛋黄+菠菜碎+少量水搅成可缓慢流动的面糊","平底锅刷薄油，小火倒入面糊摊平，两面各烙2分钟至金黄"],tips:"面糊稠度以舀起能缓慢流动为准；初次尝试只用蛋黄更安全低敏；冷藏2天，吃前微波10秒"},
+  "牛肉土豆烩饭":{serving:"牛肉🥩30g · 土豆30g · 青菜叶10g · 软米饭80g",steps:["牛肉剁成细末；土豆去皮切约5mm小丁；青菜叶切碎","土豆丁加水先煮5分钟，用勺子背能轻松压碎即熟","加牛肉末翻炒变色，加米饭和青菜碎，小火翻拌烩2分钟"],tips:"土豆丁大小根据宝宝咀嚼力调整；牛肉末可分小份冷冻；冷藏1天"},
+  "龙利鱼豆腐饭团":{serving:"龙利鱼🐟40g · 嫩豆腐30g · 软米饭100g",steps:["龙利鱼化冻检查去刺，上锅蒸5分钟至熟，用勺子压碎","嫩豆腐焯水1分钟去豆腥，沥干后用勺压碎","鱼+豆腐+米饭混合拌匀，手沾凉开水捏成乒乓球一半大小的小饭团"],tips:"饭团大小约乒乓球一半方便抓握；龙利鱼选去皮去骨款；冷藏1天，微波15秒回温"},
+  "苹果山药蒸糕 + 红枣花生米糊":{serving:"苹果半个 · 山药50g · 鸡蛋🥚1个 · 面粉30g · 红枣3颗 · 花生10g",steps:["苹果山药去皮切块，加鸡蛋一起放入辅食机打成细腻糊状，加面粉拌匀","模具刷薄油，倒入面糊8分满，水开上锅蒸15分钟关火焖3分钟","红枣去核+花生（研磨成粉）+水煮10分钟，辅食机打成米糊"],tips:"牙签插入蒸糕不沾即熟；花生必须研磨成细粉避免呛到；蒸糕冷冻可存2周"},
+  "鲜虾胡萝卜软面":{serving:"鲜虾🦐3只 · 胡萝卜30g · 婴儿面条30g",steps:["鲜虾去壳去虾线剁成虾泥；胡萝卜擦成细丝","锅中刷油，胡萝卜丝炒软，加一碗水煮开","放入面条煮3分钟，加虾泥快速搅散，再煮1分钟出锅"],tips:"胡萝卜丝越细越容易煮软；虾泥下锅后快速搅散避免成坨；面条不要煮太烂保留嚼劲"},
+  "鸡胸肉南瓜烩饭":{serving:"鸡胸肉30g · 南瓜40g · 软米饭80g",steps:["鸡胸肉切薄片蒸8分钟至熟，放凉后用手撕成细丝","南瓜去皮切小丁，加水煮8分钟至软烂，用勺压碎部分保留颗粒","加入鸡丝和米饭翻拌均匀，小火烩至汤汁收干"],tips:"鸡肉手撕比刀切更有纹理感锻炼咀嚼；南瓜保留部分颗粒增加口感；冷藏2天"},
+  "南瓜红枣软饼 + 核桃黑芝麻米糊":{serving:"南瓜50g · 红枣3颗 · 面粉40g · 核桃10g · 黑芝麻5g · 大米15g",steps:["南瓜蒸熟压成泥，红枣去核切碎，加面粉揉成软面团","面团分小份压成手指条状，平底锅刷薄油，小火两面各烙2分钟","大米+核桃（研磨）+黑芝麻+水煮15分钟，辅食机打成米糊"],tips:"软饼做手指条形状方便宝宝抓握；核桃提前碾碎营养更好吸收；软饼冷藏3天冷冻2周"},
+  "三文鱼菠菜饭团":{serving:"三文鱼🐟40g · 菠菜20g · 软米饭100g",steps:["三文鱼化冻后检查去刺，上锅蒸6分钟至熟，用勺压碎","菠菜焯水30秒挤干水分切碎","鱼+菠菜+米饭拌匀，手沾凉开水捏成小饭团，外可滚一层熟芝麻"],tips:"三文鱼选中段刺少部位；饭团外滚熟芝麻增香防粘；冷藏1天，现做现吃口感最好"},
+  "牛肉番茄意面":{serving:"牛肉🥩30g · 番茄半个 · 婴儿意面30g",steps:["牛肉剁成细末；番茄去皮切碎；意面掰成小段","意面加水煮8-10分钟至筷子能轻松夹断（比成人多煮3分钟）","锅中炒香牛肉末和番茄，加少量水熬成酱汁，拌入沥干的意面"],tips:"意面煮到筷子轻松夹断但仍有嚼劲；牛肉番茄酱可多做分小份冷冻；意面有嚼劲正适合锻炼咀嚼"},
+  "紫薯核桃饭团 + 山药红枣米糊":{serving:"紫薯50g · 核桃碎10g · 软米饭100g · 山药30g · 红枣3颗",steps:["紫薯去皮切块蒸15分钟至软烂，用勺压成细腻紫薯泥","紫薯泥+核桃碎+米饭拌匀，手沾水捏成板栗大小的小饭团","山药去皮切块+红枣去核+水煮10分钟，辅食机打成米糊"],tips:"饭团板栗大小一口一个不浪费；紫薯颜色漂亮宝宝喜爱度高；冷藏1天，吃前蒸3分钟"},
+  "鲜虾冬瓜烩饭":{serving:"鲜虾🦐3只 · 冬瓜50g · 软米饭80g",steps:["鲜虾去壳去虾线剁成虾泥；冬瓜去皮切约5mm小丁","冬瓜丁加少量水煮5分钟至半透明变软","加入虾泥和米饭，翻拌均匀烩至汤汁收干"],tips:"冬瓜含水量大不用额外加太多水；虾泥保留适度颗粒感；冷藏1天尽快食用"},
+  "鳕鱼胡萝卜烩饭":{serving:"鳕鱼🐟30g · 胡萝卜30g · 软米饭80g",steps:["鳕鱼化冻检查去刺，切小丁；胡萝卜切碎","锅中刷油，胡萝卜碎炒软加少量水焖3分钟至熟透","加入鳕鱼丁和米饭翻拌，小火烩2分钟至汤汁收干"],tips:"鳕鱼肉质细嫩最后加入避免煮散；胡萝卜一定要焖透变软；现做现吃最佳"},
+  "黑米黑芝麻软饼 + 南瓜小米糊":{serving:"黑米粉30g · 黑芝麻5g · 面粉20g · 南瓜50g · 小米15g",steps:["黑米粉+面粉+碾碎的黑芝麻混合，加温水搅成软面团","面团分小份压扁，平底锅刷薄油，小火两面各烙2分钟","南瓜切块+小米+水煮15分钟，辅食机打成细腻米糊"],tips:"黑米粉比普通面粉吸水多面团要稍软；黑芝麻提前碾碎营养更好吸收；软饼冷冻可存2周"},
+  "牛肉山药烩饭":{serving:"牛肉🥩30g · 山药40g · 青菜叶10g · 软米饭80g",steps:["牛肉剁成细末；山药去皮切约5mm小丁","山药丁加水先煮5分钟至软（铁棍山药更快）","加牛肉末炒至变色，加米饭和青菜碎翻拌，小火烩2分钟"],tips:"山药选铁棍山药更粉糯易煮软；牛肉末颜色变深即熟不要久煮变老；冷藏1天"},
+  "虾仁蛋饼":{serving:"鲜虾🦐3只 · 鸡蛋🥚1个 · 面粉20g · 水少许",steps:["鲜虾去壳去虾线，剁成保留小颗粒的虾泥；鸡蛋打散","蛋液+虾泥+面粉+少量水搅成可流动的面糊","平底锅刷薄油，小火倒入面糊摊成约8mm厚的圆饼，两面各烙2分钟"],tips:"蛋饼厚8mm最合适，太厚中间不熟；虾泥保留小颗粒锻炼咀嚼；冷藏1天，吃时切条微波20秒"}
+};
+
+// ====================== TUTORIAL MODAL ======================
+function openTutorial(name){
+  const t=tutorials[name];if(!t)return;
+  document.getElementById('modal-title').textContent=name;
+  document.getElementById('modal-serving').innerHTML='<strong>🥄 食材分量：</strong>'+t.serving;
+  const tagEl=document.getElementById('modal-tags');tagEl.innerHTML='';
+  const tagMap={'🐟':['tag-fish','鱼'],'🦐':['tag-shrimp','虾'],'🥚':['tag-egg','蛋'],'🥩':['tag-beef','牛肉']};
+  for(const [emoji,[cls,label]] of Object.entries(tagMap)){
+    if(t.serving.includes(emoji)||name.includes(emoji)){tagEl.innerHTML+=`<span class="tag-highlight ${cls}">${emoji}${label}</span>`}
+  }
+  const stepLabels=['食材准备','烹饪步骤','装盘出锅'];
+  document.getElementById('tutorial-steps').innerHTML=t.steps.map((s,i)=>`<div class="tutorial-step"><div class="step-label s${i+1}">第${i+1}步 · ${stepLabels[i]}</div><div class="step-content">${s}</div></div>`).join('');
+  document.getElementById('tips-content').innerHTML='<strong>💡 小贴士：</strong>'+t.tips;
+  document.getElementById('tutorial-modal').classList.add('show');document.body.style.overflow='hidden';
+}
+function closeTutorial(e){if(e&&e.target!==document.getElementById('tutorial-modal'))return;document.getElementById('tutorial-modal').classList.remove('show');document.body.style.overflow='';}
 
 // ====================== INIT ======================
 buildDesktopNav();
